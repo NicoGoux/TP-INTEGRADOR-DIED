@@ -1,0 +1,12 @@
+{
+    "liveshare.diagnosticLogging": true,
+    "liveshare.diagnosticMode": true,
+    "liveshare.notebooks.allowGuestExecuteCells": true,
+    "liveshare.languages.allowGuestCommandControl": true,
+    "liveshare.allowGuestDebugControl": true,
+    "liveshare.allowGuestTaskControl": true,
+    "files.autoSave": "onWindowChange",
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar"
+    ]
+}
