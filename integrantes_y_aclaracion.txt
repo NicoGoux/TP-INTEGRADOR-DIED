@@ -1,5 +1,10 @@
+Integrantes:
 Airaldi Renzo
 Goux Nicolás
 
-Aclaración: El Trabajo práctico fue realizado en visual studio code https://code.visualstudio.com/
+Link de GitHub:
+https://github.com/NicoGoux/TP-INTEGRADOR-DIED.git
+
+Aclaración: 
+El Trabajo práctico fue realizado en visual studio code https://code.visualstudio.com/
 y fue probado en Windows 10 x64
