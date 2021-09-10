@@ -86,7 +86,6 @@ public class StationsTable extends JTable {
                 model.setLastPoint(row, column);
             }
         });
-
         refreshData();
     }
 
@@ -98,7 +97,7 @@ public class StationsTable extends JTable {
             DBConnection.establishConnection();
             PreparedStatement pstm = null;
             try {
-                pstm = DBConnection.getConnection().prepareStatement("SELECT * FROM STATION");
+                pstm = DBConnection.getConnection().prepareStatement("SELECT * FROM STATION ORDER BY id"); //Order by agregado despues de la entrega
                 rs = pstm.executeQuery();
                 Object [] data = new Object[5];
                 while (rs.next()) { 
@@ -140,7 +139,6 @@ public class StationsTable extends JTable {
         }
         else {
             //Realizamos un backUp de la fila actual antes de realizar modificaciones para el caso de que el usuario cancele la modificacion.
-            this.lastEditRow= this.getSelectedRow();
             this.lastEditRow= this.getSelectedRow();
             this.model.setBackUpRow(this.lastEditRow);
             /*

@@ -426,7 +426,7 @@ public class Graph {
 					String key = aRoute.getHashString();
 					if(!flows.containsKey(key)){
 						flows.put(key, aRoute.getMaxPassengers());
-					}	
+					} 
 				}
 			}
 		}

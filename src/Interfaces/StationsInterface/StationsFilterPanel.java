@@ -95,7 +95,15 @@ public class StationsFilterPanel extends JPanel {
         openingField.addKeyListener(new KeyAdapter() {
             public void keyTyped(KeyEvent e) {
                 char car = e.getKeyChar();
-                if((car<'0' || car>'9' || car==':')) e.consume();
+
+                /* AGREGADO DESPUES DE LA ENTREGA */
+
+                if(car!=':' && (car<'0' || car>'9')) e.consume();
+
+                /* 
+                 AGREGADO DESPUES DE LA ENTREGA 
+                 El codigo anterior no permitia ingresar el caracter ":" de la hora
+                 */
             }
         });
 
@@ -104,7 +112,7 @@ public class StationsFilterPanel extends JPanel {
         closingField.addKeyListener(new KeyAdapter() {
             public void keyTyped(KeyEvent e) {
                 char car = e.getKeyChar();
-                if((car<'0' || car>'9' || car==':')) e.consume();
+                if(car!=':' && (car<'0' || car>'9')) e.consume();
             }
         });
 
@@ -134,7 +142,7 @@ public class StationsFilterPanel extends JPanel {
         cts.gridy=5;
         this.add(statusComboBox,cts);
 
-        //Creamos un boton de busqueda y un boton de filtro por importancia (page rank)
+        //Creamos un boton de busqueda, un boton de filtro por importancia (page rank) y un boton de proximos mantenimientos (Ordena por prioridad de mantenimiento)
         MyButton searchButton = new MyButton("Buscar", 14);
         MyButton priorityStationButton = new MyButton("Importancia",14);
         MyButton priorityMaintenanceButton = new MyButton("Proximo mantenimiento",14);
@@ -275,6 +283,9 @@ public class StationsFilterPanel extends JPanel {
                 List<Map.Entry<Integer,Double>> sortedPageRank = pageRank.entrySet().stream()
                                                                                     .sorted(Map.Entry.comparingByValue((d1,d2)->d2.compareTo(d1)))
                                                                                     .collect(Collectors.toList());
+
+                sortedPageRank.forEach(System.out::println);
+
                 //Se actualiza la tabla con los datos obtenidos
                 for (Map.Entry<Integer,Double> aStationPair : sortedPageRank) {
                     table.addStation(graphInstance.getStation(aStationPair.getKey()));
@@ -293,18 +304,38 @@ public class StationsFilterPanel extends JPanel {
 
                 //Se consulta a la base de datos sobre el ultimo mantenimiento de cada estacion
                 Runnable r1 = () -> {
+
+                    //El codigo entregado omitia las estaciones sobre las cuales nunca se habia realizado un mantenimiento con anterioridad
+
+                    ResultSet rsNeverMaintenance = null; //Agregado despues de la entrega
                     ResultSet rsNotMaintenance = null;
                     ResultSet rsCurrentMaintenance = null;
                     DBConnection.establishConnection();
+                    PreparedStatement pstmNeverMaintenance = null; //Agregado despues de la entrega
                     PreparedStatement pstmNotMaintenance = null;
                     PreparedStatement pstmCurrentMaintenance = null;
                     try {
+
+                        /* AÑADIDO DESPUES DE LA ENTREGA */ /* AÑADIDO DESPUES DE LA ENTREGA */
+                        
+                        pstmNeverMaintenance = DBConnection.getConnection().prepareStatement("SELECT S.id "+
+                                                                                             "FROM station S "+
+                                                                                             "WHERE S.id NOT IN (SELECT DISTINCT M.id "+
+                                                                                                                "FROM maintenance M)");
+                        rsNeverMaintenance = pstmNeverMaintenance.executeQuery();
+
+                        while (rsNeverMaintenance.next()) {
+                            table.addStation(graphInstance.getStation(rsNeverMaintenance.getInt(1)));
+                        }
+
+                        /* AÑADIDO DESPUES DE LA ENTREGA */ /* AÑADIDO DESPUES DE LA ENTREGA */
+
                         pstmNotMaintenance = DBConnection.getConnection().prepareStatement("SELECT M.id, MAX(end_date) as last_maintenance "+
-                                                                             "FROM maintenance M "+
-                                                                             "WHERE M.id NOT IN (SELECT M2.id "+
+                                                                                           "FROM maintenance M "+
+                                                                                           "WHERE M.id NOT IN (SELECT M2.id "+
                                                                                                 "FROM maintenance M2 "+
                                                                                                 "WHERE end_date IS NULL) "+
-                                                                             "GROUP BY M.id");
+                                                                                           "GROUP BY M.id");
                         rsNotMaintenance = pstmNotMaintenance.executeQuery();
 
                         //Se crea un hashmap que almacena cada estacion con su ultimo mantenimiento
@@ -320,10 +351,9 @@ public class StationsFilterPanel extends JPanel {
                         }
 
                         //Consultamos por las estaciones que se encuentran en mantenimiento actualmente para agregarlas al final de la tabla
-                        pstmCurrentMaintenance = DBConnection.getConnection().prepareStatement("SELECT M2.id "+
-                                                                                               "FROM maintenance M2 "+
-                                                                                               "WHERE end_date IS NULL "+
-                                                                                               "GROUP BY M2.id");
+                        pstmCurrentMaintenance = DBConnection.getConnection().prepareStatement("SELECT M.id "+
+                                                                                               "FROM maintenance M "+
+                                                                                               "WHERE end_date IS NULL ");
                         rsCurrentMaintenance = pstmCurrentMaintenance.executeQuery();
                         //Agregamos las estaciones con un mantenimiento en curso a la tabla
                         while (rsCurrentMaintenance.next()) {

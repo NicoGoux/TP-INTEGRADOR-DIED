@@ -307,7 +307,12 @@ public class TransportsButtonPanel extends JPanel {
          //Se elimina la linea de transporte seleccionada del sistema
          deleteTransportButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                
+                /* AÑADIDO DESPUES DE LA ENTREGA */
+                transportsTable.stopEditingCell();
+                /* AÑADIDO DESPUES DE LA ENTREGA 
+                   Si se iniciaba la edicion de una celda y se eliminaba la fila, la celda continuaba en edicion y no permitia salir de ella
+                 */
+
                 int confirm = JOptionPane.showConfirmDialog(null,"Desea eliminar la linea de transporte "+transportsTable.getIdentifier()+"?","Eliminar linea de transporte",JOptionPane.YES_NO_OPTION);
                 if (confirm == 0) {
                     Runnable t = () -> {

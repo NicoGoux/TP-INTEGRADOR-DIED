@@ -172,7 +172,11 @@ public class StationsButtonPanel extends JPanel {
                 okButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent event) {
                         //Si no se ingreso ningun dato se indica un error que solicita el ingreso de los datos
-                        if (stationNameField.getText().isEmpty() || stationOpeningField.getText().isEmpty() || stationClosingField.getText().isEmpty()) {
+
+                        /* AÑADIDO DESPUES DE LA ENTREGA se cambio la verificacion de stationOpeningField y stationClosingField ya que consultabamos si 
+                           el campo era vacio pero nunca iba a ser vacio debido a la mascara que poseen
+                         */
+                        if (stationNameField.getText().isEmpty() || stationOpeningField.getText().equals("  :  ") || stationClosingField.getText().equals("  :  ")) {
                             JOptionPane.showMessageDialog(null,"Error. No se ingresaron los datos de la estación a agregar","Ingrese los datos de la nueva estación",JOptionPane.ERROR_MESSAGE);
                         }
                         //Se almacena la nueva estacion en la base de datos, se agrega la estacion al grafo y se actualiza la tabla
@@ -191,6 +195,14 @@ public class StationsButtonPanel extends JPanel {
                                     pstm.setString(4, aStation.getClosing());
                                     pstm.setBoolean(5, aStation.getStatus());
                                     ps = pstm.executeUpdate();
+
+                                    /* AÑADIDO DESPUES DE LA ENTREGA */
+                                    //Se añade la estacion a la lista de estaciones del grafo
+                                    Graph.getInstance().addStation(aStation);
+                                    stationsTable.addStation(aStation);
+                                    /* AÑADIDO DESPUES DE LA ENTREGA */
+
+
                                 } 
                                 catch (SQLException e){
                                     e.printStackTrace();
@@ -198,9 +210,15 @@ public class StationsButtonPanel extends JPanel {
                                 } 
                                 finally {
                                     DBConnection.closeConnection(pstm, ps);
+                                    
+                                    /*
+                                    Se quito despues de la entrega y se coloco en el bloque try ya que si se detecta una excepcion y no se almacena en base de datos
+                                    se estaria agregando una estacion no almacenada en la base de datos 
+                                      
                                     //Se añade la estacion a la lista de estaciones del grafo
                                     Graph.getInstance().addStation(aStation);
                                     stationsTable.addStation(aStation);
+                                     */
                                 }
                                 
                                 
@@ -283,6 +301,7 @@ public class StationsButtonPanel extends JPanel {
                     //No incluimos la actualizacion del ID y el estado de la estacion ya que los mismos no estan modificados
                     //pstm.setInt(1,(int) stationsTable.getValueAt(row, 0));
                     //pstm.setBoolean(5, (Boolean) stationsTable.getValueAt(row, 4));
+
                     update = pstm.executeUpdate();
                 } 
                 catch (SQLException e) {
@@ -367,6 +386,12 @@ public class StationsButtonPanel extends JPanel {
         deleteStationButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 
+                /* AÑADIDO DESPUES DE LA ENTREGA */
+                stationsTable.stopEditingCell();
+                /* AÑADIDO DESPUES DE LA ENTREGA 
+                   Si se iniciaba la edicion de una celda y se eliminaba la fila, la celda continuaba en edicion y no permitia salir de ella
+                 */
+
                 int confirm = JOptionPane.showConfirmDialog(null,"Desea eliminar la estación "+stationsTable.getIdentifier()+"?","Eliminar estación",JOptionPane.YES_NO_OPTION);
                 if (confirm == 0) {
                     Runnable t = () -> {
@@ -419,7 +444,7 @@ public class StationsButtonPanel extends JPanel {
                     mainFrame.setEnabled(false);
 
                     //Se crea un popUp donde se permitira seleccionar añadir o finalizar mantenimientos segun el estado de la estacion
-                    JDialog popUp = WindowManager.getPopUpWindow("Ingrese los datos de la estación");
+                    JDialog popUp = WindowManager.getPopUpWindow("Mantenimiento");
                     JPanel maintenancePanel = new JPanel();
                     maintenancePanel.setLayout(new GridBagLayout());
                     GridBagConstraints cts = new GridBagConstraints();

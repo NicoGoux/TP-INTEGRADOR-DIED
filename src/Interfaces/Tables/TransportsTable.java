@@ -107,7 +107,7 @@ public class TransportsTable extends JTable {
             DBConnection.establishConnection();
             PreparedStatement pstm = null;
             try {
-                pstm = DBConnection.getConnection().prepareStatement("SELECT * FROM TRANSPORT");
+                pstm = DBConnection.getConnection().prepareStatement("SELECT * FROM TRANSPORT ORDER BY id"); //Order by agregado despues de la entrega
                 rs = pstm.executeQuery();
                 Object [] data = new Object[4];
                 while (rs.next()) { 

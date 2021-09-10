@@ -29,6 +29,7 @@ public class ColourSelectorRender extends JLabel implements ListCellRenderer<Str
         else {
             setText("Color");
             comboBox.setBackground(Color.decode(value));
+            comboBox.setForeground(Color.decode(value)); //Cambio estetico posterior a la entrega
             setForeground(Color.decode(value));
             setBackground(Color.decode(value));
         } 
